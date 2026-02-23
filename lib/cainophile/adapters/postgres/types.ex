@@ -1,5 +1,10 @@
 defmodule Cainophile.Adapters.Postgres.Types do
   alias PgoutputDecoder.Messages.Relation.Column
+
+  def cast(%Column{type: {:array, inner_type}, name: name}, data) do
+    {name, convert_array(inner_type, data)}
+  end
+
   def cast(%Column{type: type, name: name}, data) do
     {name, convert("#{type}", data)}
   end
@@ -56,8 +61,41 @@ defmodule Cainophile.Adapters.Postgres.Types do
     end
   end
 
-
   defp convert(_, record), do: record
 
+  defp convert_array(inner_type, data) when is_binary(data) do
+    data
+    |> parse_postgres_array()
+    |> Enum.map(fn
+      nil -> nil
+      element -> convert("#{inner_type}", element)
+    end)
+  end
 
+  defp parse_postgres_array(<<"{", rest::binary>>) do
+    content = String.slice(rest, 0..-2//1)
+
+    if content == "" do
+      []
+    else
+      ~r/"(?:\\.|[^"\\])*"|[^,{}]+/
+      |> Regex.scan(content)
+      |> List.flatten()
+      |> Enum.map(fn
+        "NULL" ->
+          nil
+
+        "\"" <> _ = quoted ->
+          quoted
+          |> String.slice(1..-2//1)
+          |> String.replace("\\\"", "\"")
+          |> String.replace("\\\\", "\\")
+
+        val ->
+          val
+      end)
+    end
+  end
+
+  defp parse_postgres_array(data), do: [data]
 end
