@@ -63,6 +63,8 @@ defmodule Cainophile.Adapters.Postgres.Types do
 
   defp convert(_, record), do: record
 
+  defp convert_array(_inner_type, nil), do: nil
+
   defp convert_array(inner_type, data) when is_binary(data) do
     data
     |> parse_postgres_array()
