@@ -4,6 +4,10 @@ defmodule Cainophile.Adapters.Postgres.Types do
   def cast(%Column{type: {:array, inner_type}, name: name}, data) do
     {name, convert_array(inner_type, data)}
   end
+ 
+  def cast(%Column{type: {:unknown, _oid}, name: name}, data) do
+    {name, data}
+  end
 
   def cast(%Column{type: type, name: name}, data) do
     {name, convert("#{type}", data)}
