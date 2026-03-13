@@ -32,7 +32,7 @@ defmodule Cainophile.MixProject do
   defp deps do
     [
       {:epgsql, "~> 4.2"},
-      {:pgoutput_decoder, git: "https://github.com/aldoridhoni/pgoutput_decoder.git", branch: "improvement/array"},
+      {:pgoutput_decoder, git: "https://github.com/aldoridhoni/pgoutput_decoder.git", tag: "0.2.0"},
       {:mox, ">= 0.5.1", only: [:dev, :test]},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:timex, "~> 3.7"},
